@@ -65,6 +65,7 @@ bool dataCompare(SPIFlash flash, uint32_t addr, String &compare_str)
     {
         Serial.println("Data error");
         Serial.println(flash.error(true));
+        return false;
     }
     else
     {
@@ -73,6 +74,7 @@ bool dataCompare(SPIFlash flash, uint32_t addr, String &compare_str)
             Serial.println("Data is the same. Cleaning up...");
             // Clear up dummy data
             flash.eraseSection(addr, flash.sizeofStr(compare_str));
+            return true;
         }
         else
         {
@@ -80,6 +82,7 @@ bool dataCompare(SPIFlash flash, uint32_t addr, String &compare_str)
             Serial.println("Returned string:");
             Serial.println(output_str);
             flash.eraseSection(addr, flash.sizeofStr(output_str));
+            return false;
         }
     }
 }
