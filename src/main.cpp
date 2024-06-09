@@ -60,12 +60,49 @@ void loop()
     }
     case 2:
     {
+      // dump data to the flash
       Serial.println("Dumping text to nand flash");
       Serial.println("This can take some time");
       readWriteString(flash, TEST_DATA);
       break;
     }
+    case 4:
+    {
+      // this is our stress testing seg
+      testlist();
+      // wait for data to come through
+      while (!Serial.available())
+      {
+      }
+      uint8_t choice = Serial.parseInt();
+      switch (choice)
+      {
+      case 1:
+      {
+        Serial.println("Dumping test data to nand flash");
+        Serial.println("This can take some time");
+        uint8_t addr = writeString(flash, TEST_DATA);
+        Serial.println("Data written to: ");
+        Serial.print(addr);
+        break;
+      }
+      case 2:
+      {
+        Serial.println("Please enter the address the data was written to");
+        // wait for data to come through
+        while (!Serial.available())
+        {
+        }
+        uint8_t addr = Serial.parseInt();
+        Serial.println("Seeing if there is any data corruption: ");
+        dataCompare(flash, addr, TEST_DATA);
+      }
 
+      default:
+        Serial.println("Not a valid option!");
+      }
+      break;
+    }
     default:
     {
       Serial.println("Not a valid command!");
