@@ -2,7 +2,7 @@
 #include <SPIMemory.h>
 #include "FlashHandler.h"
 
-uint32_t writeString(SPIFlash flash, String _string)
+uint32_t writeString(SPIFlash flash, String &_string)
 {
     uint32_t addr = flash.getAddress(flash.sizeofStr(_string));
     Serial.println("Writing to address: ");
@@ -20,7 +20,7 @@ uint32_t writeString(SPIFlash flash, String _string)
     }
 }
 
-String readString(SPIFlash flash, uint32_t addr)
+void readStringToSerial(SPIFlash flash, uint32_t addr)
 {
     String output_str;
     if (!flash.readStr(addr, output_str))
@@ -28,5 +28,19 @@ String readString(SPIFlash flash, uint32_t addr)
         Serial.println("Data error");
         Serial.println(flash.error(true));
     }
-    return output_str;
+    else
+    {
+        Serial.print(output_str);
+    }
+}
+
+void readWriteString(SPIFlash flash, String &_string)
+{
+    uint32_t addr = writeString(flash, _string);
+    if (addr)
+    {
+        Serial.println("Reading back from address: ");
+        Serial.println(addr);
+        readStringToSerial(flash, addr);
+    }
 }

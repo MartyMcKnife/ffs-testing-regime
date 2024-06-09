@@ -3,6 +3,7 @@
 #include <DiagnosticsRun.h>
 #include <CommandList.h>
 #include <FlashHandler.h>
+#include "main.h"
 
 // The library we are using for this demo DOES NOT support QSPI
 // Adafruit's SPI library may be able to help with this
@@ -13,10 +14,7 @@
 
 #define BAUD_RATE 115200
 
-// our data.txt file is 100,304 bytes
-//  reserve that in memory
-const byte numChars = 100304;
-char receivedChars[numChars];
+String DUMMY_MSG = "Hello World!";
 
 SPIFlash flash;
 
@@ -41,103 +39,38 @@ void setup()
 
 void loop()
 {
-  // setup vars for reading serial data
-  bool test_2 = false;
-  char startMarker = '<';
-  char endMarker = '>';
-  static boolean recvInProgress = false;
-  static byte ndx = 0;
-  char rc;
 
   while (Serial.available() > 0)
   {
-    if (test_2)
-    {
-      // Parse data sent through serial
-      // Looks for user defined start/end chars
-      // Adapated from https://forum.arduino.cc/t/pc-arduino-comms-using-python-updated/574496
-      rc = Serial.read();
-      if (recvInProgress == true)
-      {
-        // Check if we've finished reading the string
-        if (rc != endMarker)
-        {
-          // update our string
-          receivedChars[ndx] = rc;
-          ndx++;
-          // if our data file is more than the amount of space we've reserved, start overwriting data
-          if (ndx >= numChars)
-          {
-            ndx = numChars - 1;
-          }
-        }
-        else
-        {
-          // terminate string
-          receivedChars[ndx] = '\0';
-          recvInProgress = false;
-          ndx = 0;
-        }
-      }
-      // only start parsing if we see our marker
-      else if (rc == startMarker)
-      {
-        recvInProgress = true;
-      }
 
-      if (receivedChars == "STOP")
-      {
-        test_2 = false;
-      }
-      else
-      {
-        Serial.println("Writing text file to nand flash");
-        uint32_t addr = writeString(flash, receivedChars);
-        if (addr)
-        {
-          Serial.println("Reading back from address: ");
-          Serial.println(addr);
-          Serial.println(readString(flash, addr));
-        }
-      }
+    uint8_t number = Serial.parseInt();
+    switch (number)
+    {
+      // Run diagnostics
+    case 0:
+    {
+      runDiagnostics(flash);
+      break;
     }
-    else
+
+    case 1:
+    { // Write hello world and read it back
+      readWriteString(flash, DUMMY_MSG);
+      break;
+    }
+    case 2:
     {
-      uint8_t number = Serial.parseInt();
-      switch (number)
-      {
-        // Run diagnostics
-      case 0:
-      {
-        runDiagnostics(flash);
-        break;
-      }
+      Serial.println("Dumping text to nand flash");
+      Serial.println("This can take some time");
+      readWriteString(flash, TEST_DATA);
+      break;
+    }
 
-      case 1:
-      { // Write hello world and read it back
-        uint32_t addr = writeString(flash, "Hello World!");
-        if (addr)
-        {
-          Serial.println("Reading back from address: ");
-          Serial.println(addr);
-          Serial.println(readString(flash, addr));
-        }
-        break;
-      }
-      case 2:
-      {
-        test_2 = true;
-        Serial.println("Awaiting text dump. Please use writeData.py found in test folder!");
-        Serial.println("Type '<STOP>' to quit test");
-        break;
-      }
-
-      default:
-      {
-        Serial.println("Not a valid command!");
-        mainlist();
-      }
-      }
+    default:
+    {
+      Serial.println("Not a valid command!");
+      mainlist();
+    }
     }
   }
 }
