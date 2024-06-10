@@ -66,7 +66,7 @@ void loop()
       readWriteString(flash, TEST_DATA);
       break;
     }
-    case 4:
+    case 3:
     {
       // this is our stress testing seg
       testlist();

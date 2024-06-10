@@ -27,13 +27,9 @@ void mainlist()
     Serial.println(F("  2. dump data"));
     Serial.print(F("\t\t"));
     Serial.println(F("'2' dumps 100kB of data into the flash chip and reads it back"));
-    Serial.println(F("  3. overload data"));
+    Serial.println(F("  3. stress test"));
     Serial.print(F("\t\t"));
-    Serial.println(F("'3' writes 600mB of data to the flash chip and reads back what was successfully written"));
-    Serial.println(F("  4. stress test"));
-    Serial.print(F("\t\t"));
-    Serial.println(F("'4' set up/tear down the flash chip for stress testing"));
-    Serial.println(F("  6. writeStr [page] [offset] [inputString]"));
+    Serial.println(F("'3' set up/tear down the flash chip for stress testing"));
     Serial.println(F(" ----------------------------------------------------------------------------------------------------------------------------------"));
 }
 
